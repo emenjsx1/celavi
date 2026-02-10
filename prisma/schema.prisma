@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  stores    Store[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Store {
+  id          Int        @id @default(autoincrement())
+  userId      Int        @map("user_id")
+  name        String
+  slug        String     @unique
+  logo        String?
+  description String?
+  categories  Category[]
+  products    Product[]
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  @@index([slug])
+  @@map("stores")
+}
+
+model Category {
+  id           Int       @id @default(autoincrement())
+  storeId      Int       @map("store_id")
+  name         String
+  description  String?
+  orderPosition Int      @default(0) @map("order_position")
+  products     Product[]
+  store        Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  @@index([storeId, orderPosition])
+  @@map("categories")
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  categoryId  Int      @map("category_id")
+  storeId     Int      @map("store_id")
+  name        String
+  description String?
+  price       Decimal  @db.Decimal(10, 2)
+  image       String?
+  isAvailable Boolean  @default(true) @map("is_available")
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  store       Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([categoryId])
+  @@index([storeId])
+  @@index([isAvailable])
+  @@map("products")
+}
+
+
+
+
+
+
+
+
+
+
+
