@@ -7,7 +7,7 @@ import { mockData, initializeMockData } from '@/lib/mock-data'
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
     }
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
     // Fallback para mock data
     await initializeMockData()
     const store = mockData.stores.findByUserId(parseInt(session.user.id))
-    
+
     if (!store) {
       return NextResponse.json(null)
     }
@@ -70,9 +70,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    await initializeMockData()
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
     }
@@ -86,7 +85,56 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Verificar se slug já existe
+    // Tentar criar no Supabase
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    if (supabaseUrl) {
+      try {
+        const { supabaseAdmin: admin } = await import('@/lib/supabase')
+        if (admin) {
+          // Verificar se slug já existe
+          const { data: existingStore } = await admin
+            .from('stores')
+            .select('id')
+            .eq('slug', slug)
+            .maybeSingle()
+
+          if (existingStore) {
+            return NextResponse.json(
+              { error: 'Slug já existe' },
+              { status: 400 }
+            )
+          }
+
+          const { data: store, error } = await admin
+            .from('stores')
+            .insert({
+              user_id: parseInt(session.user.id),
+              name,
+              slug,
+              description: description || null,
+            })
+            .select()
+            .single()
+
+          if (error) throw error
+
+          if (store) {
+            return NextResponse.json({
+              id: store.id,
+              userId: store.user_id,
+              name: store.name,
+              slug: store.slug,
+              description: store.description,
+            }, { status: 201 })
+          }
+        }
+      } catch (supabaseError) {
+        console.warn('Supabase error, falling back to mock data:', supabaseError)
+      }
+    }
+
+    // Fallback para mock data
+    await initializeMockData()
     const existingStore = mockData.stores.findBySlug(slug)
 
     if (existingStore) {
@@ -115,61 +163,45 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    await initializeMockData()
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
     }
 
-    // Ler o body uma única vez
     const body = await request.json()
-    const { 
-      id, 
-      name, 
-      slug, 
-      description, 
-      facebookUrl, 
-      instagramUrl, 
-      whatsappUrl, 
-      appUrl, 
-      address, 
-      phone, 
-      email, 
+    const {
+      id,
+      name,
+      slug,
+      description,
+      facebookUrl,
+      instagramUrl,
+      whatsappUrl,
+      appUrl,
+      address,
+      phone,
+      email,
       mpesaName,
-      mpesaPhone, 
+      mpesaPhone,
       emolaName,
-      emolaPhone 
+      emolaPhone
     } = body
-
-    // Verificar se a loja pertence ao usuário
-    const store = mockData.stores.findByUserId(parseInt(session.user.id))
-
-    if (!store || store.id !== id) {
-      return NextResponse.json(
-        { error: 'Loja não encontrada' },
-        { status: 404 }
-      )
-    }
-
-    // Verificar se slug já existe (exceto a própria loja)
-    if (slug !== store.slug) {
-      const existingStore = mockData.stores.findBySlug(slug)
-
-      if (existingStore) {
-        return NextResponse.json(
-          { error: 'Slug já existe' },
-          { status: 400 }
-        )
-      }
-    }
 
     // Tentar atualizar no Supabase primeiro
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     if (supabaseUrl) {
       try {
-        // Atualizando loja no Supabase
-        const updatedStore = await updateStore(id, {
+        const store = await getStoreByUserId(parseInt(session.user.id))
+
+        if (!store || store.id !== parseInt(id)) {
+          return NextResponse.json(
+            { error: 'Loja não encontrada' },
+            { status: 404 }
+          )
+        }
+
+        const updatedStore = await updateStore(parseInt(id), {
           name,
           slug,
           description: description || undefined,
@@ -185,21 +217,28 @@ export async function PUT(request: NextRequest) {
           emolaName: emolaName || undefined,
           emolaPhone: emolaPhone || undefined,
         })
+
         if (updatedStore) {
-          // Loja atualizada com sucesso
           return NextResponse.json(updatedStore)
-        } else {
-          console.warn('updateStore retornou null, caindo para mock data')
         }
       } catch (supabaseError: any) {
         console.error('Erro ao atualizar no Supabase:', supabaseError)
-        console.error('Detalhes do erro:', supabaseError?.message, supabaseError?.code, supabaseError?.details)
-        // Não fazer fallback silencioso - retornar erro
         return NextResponse.json(
           { error: `Erro ao atualizar loja: ${supabaseError?.message || 'Erro desconhecido'}` },
           { status: 500 }
         )
       }
+    }
+
+    // Fallback para mock data
+    await initializeMockData()
+    const store = mockData.stores.findByUserId(parseInt(session.user.id))
+
+    if (!store || store.id !== id) {
+      return NextResponse.json(
+        { error: 'Loja não encontrada' },
+        { status: 404 }
+      )
     }
 
     const updatedStore = mockData.stores.update(id, {

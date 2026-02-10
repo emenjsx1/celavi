@@ -325,6 +325,66 @@ export async function getCategoryById(categoryId: number) {
   } as Category
 }
 
+export async function createCategory(category: Omit<Category, 'id'>) {
+  if (!supabaseAdmin) return null
+
+  const { data, error } = await supabaseAdmin
+    .from('categories')
+    .insert({
+      store_id: category.storeId,
+      name: category.name,
+      description: category.description || null,
+      order_position: category.orderPosition || 0,
+    })
+    .select()
+    .single()
+
+  if (error || !data) return null
+  return {
+    id: data.id,
+    storeId: data.store_id,
+    name: data.name,
+    description: data.description || undefined,
+    orderPosition: data.order_position,
+  } as Category
+}
+
+export async function updateCategory(id: number, category: Partial<Category>) {
+  if (!supabaseAdmin) return null
+
+  const updateData: any = {}
+  if (category.name !== undefined) updateData.name = category.name
+  if (category.description !== undefined) updateData.description = category.description || null
+  if (category.orderPosition !== undefined) updateData.order_position = category.orderPosition
+
+  const { data, error } = await supabaseAdmin
+    .from('categories')
+    .update(updateData)
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error || !data) return null
+  return {
+    id: data.id,
+    storeId: data.store_id,
+    name: data.name,
+    description: data.description || undefined,
+    orderPosition: data.order_position,
+  } as Category
+}
+
+export async function deleteCategory(id: number) {
+  if (!supabaseAdmin) return false
+
+  const { error } = await supabaseAdmin
+    .from('categories')
+    .delete()
+    .eq('id', id)
+
+  return !error
+}
+
 // Funções para escrever dados no Supabase
 export async function createProduct(product: Omit<Product, 'id'>) {
   if (!supabaseAdmin) return null
