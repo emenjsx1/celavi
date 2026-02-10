@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getStoreBySlug, getProductsByStoreId, getCategoryById } from '@/lib/db-supabase'
+import { getStoreBySlug, getProductsByStoreId, getCategoryById, getCategoriesByStoreId } from '@/lib/db-supabase'
 import { mockData, initializeMockData } from '@/lib/mock-data'
 
 export async function GET(

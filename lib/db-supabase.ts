@@ -41,7 +41,7 @@ export interface Category {
   name: string
   description?: string
   orderPosition: number
-  parentId?: number
+  parentId?: number | null
 }
 
 export interface Product {

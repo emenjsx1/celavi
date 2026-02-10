@@ -32,6 +32,7 @@ export interface Category {
   name: string
   description?: string
   orderPosition: number
+  parentId?: number | null
 }
 
 export interface Product {
@@ -85,7 +86,7 @@ let initialized = false
 // Inicializar dados fictícios
 export async function initializeMockData() {
   if (initialized) return // Já inicializado
-  
+
   initialized = true
 
   // Criar usuário admin
