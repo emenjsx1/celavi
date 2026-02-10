@@ -9,7 +9,7 @@ export async function GET(
   try {
     // Aguardar params (Next.js 15+)
     const { slug } = await params
-    
+
     const { searchParams } = new URL(request.url)
     const categoryId = searchParams.get('categoria')
 
@@ -19,10 +19,24 @@ export async function GET(
       try {
         const store = await getStoreBySlug(slug)
         if (store) {
-          const products = await getProductsByStoreId(
-            store.id,
-            categoryId ? parseInt(categoryId) : undefined
-          )
+          let categoryIds: number[] = []
+
+          if (categoryId) {
+            const allCategories = await getCategoriesByStoreId(store.id)
+            const currentId = parseInt(categoryId)
+            categoryIds = [currentId]
+
+            // Adicionar IDs das subcategorias
+            const children = allCategories.filter(c => c.parentId === currentId).map(c => c.id)
+            categoryIds = [...categoryIds, ...children]
+          }
+
+          let products = await getProductsByStoreId(store.id)
+
+          // Filtrar por categorias se especificado
+          if (categoryIds.length > 0) {
+            products = products.filter(p => categoryIds.includes(p.categoryId))
+          }
 
           const productsWithCategory = await Promise.all(
             products.map(async (p) => {
@@ -53,7 +67,7 @@ export async function GET(
     }
 
     let products = mockData.products.findByStoreId(store.id)
-    
+
     if (categoryId) {
       products = products.filter(p => p.categoryId === parseInt(categoryId))
     }

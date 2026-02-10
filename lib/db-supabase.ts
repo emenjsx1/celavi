@@ -41,6 +41,7 @@ export interface Category {
   name: string
   description?: string
   orderPosition: number
+  parentId?: number
 }
 
 export interface Product {
@@ -157,6 +158,7 @@ export async function getCategoriesByStoreId(storeId: number) {
     name: cat.name,
     description: cat.description || undefined,
     orderPosition: cat.order_position,
+    parentId: cat.parent_id || undefined,
   })) as Category[]
 }
 
@@ -322,6 +324,7 @@ export async function getCategoryById(categoryId: number) {
     name: data.name,
     description: data.description || undefined,
     orderPosition: data.order_position,
+    parentId: data.parent_id || undefined,
   } as Category
 }
 
@@ -335,6 +338,7 @@ export async function createCategory(category: Omit<Category, 'id'>) {
       name: category.name,
       description: category.description || null,
       order_position: category.orderPosition || 0,
+      parent_id: category.parentId || null,
     })
     .select()
     .single()
@@ -346,6 +350,7 @@ export async function createCategory(category: Omit<Category, 'id'>) {
     name: data.name,
     description: data.description || undefined,
     orderPosition: data.order_position,
+    parentId: data.parent_id || undefined,
   } as Category
 }
 
@@ -356,6 +361,7 @@ export async function updateCategory(id: number, category: Partial<Category>) {
   if (category.name !== undefined) updateData.name = category.name
   if (category.description !== undefined) updateData.description = category.description || null
   if (category.orderPosition !== undefined) updateData.order_position = category.orderPosition
+  if (category.parentId !== undefined) updateData.parent_id = category.parentId || null
 
   const { data, error } = await supabaseAdmin
     .from('categories')
@@ -371,6 +377,7 @@ export async function updateCategory(id: number, category: Partial<Category>) {
     name: data.name,
     description: data.description || undefined,
     orderPosition: data.order_position,
+    parentId: data.parent_id || undefined,
   } as Category
 }
 

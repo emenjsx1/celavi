@@ -47,6 +47,7 @@ interface Category {
   name: string
   description?: string
   orderPosition: number
+  parentId?: number
 }
 
 interface Product {
@@ -109,7 +110,7 @@ export default function DashboardContent({ session }: { session: any }) {
 
   const generateQRCode = async () => {
     if (!store) return
-    
+
     try {
       const cardapioUrl = `${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/loja/${store.slug}`
       const qr = await QRCode.toDataURL(cardapioUrl, {
@@ -153,8 +154,8 @@ export default function DashboardContent({ session }: { session: any }) {
       <header className="bg-dark-surface border-b-2 border-dark-border text-text-light p-4 shadow-lg">
         <div className="container mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 px-2 sm:px-4">
           <div className="flex items-center gap-2 sm:gap-3">
-            <img 
-              src="/logo-cela-vi-beira.png" 
+            <img
+              src="/logo-cela-vi-beira.png"
               alt="Logo Cela VI Beira"
               className="h-8 sm:h-10 w-auto object-contain"
               onError={(e) => {
@@ -250,44 +251,44 @@ export default function DashboardContent({ session }: { session: any }) {
           {/* Redes Sociais e App - Lado Direito */}
           <div className="bg-dark-surface rounded-lg shadow-lg p-6 border-2 border-dark-border">
             <h2 className="text-xl font-bold text-text-light mb-4">Configurações</h2>
-          <form onSubmit={async (e) => {
-            e.preventDefault()
-            const formData = new FormData(e.currentTarget)
-            const data = {
-              id: store.id,
-              name: store.name,
-              slug: store.slug,
-              description: store.description,
-              facebookUrl: formData.get('facebookUrl') || undefined,
-              instagramUrl: formData.get('instagramUrl') || undefined,
-              whatsappUrl: formData.get('whatsappUrl') || undefined,
-              appUrl: formData.get('appUrl') || undefined,
-              mpesaName: formData.get('mpesaName') || undefined,
-              mpesaPhone: formData.get('mpesaPhone') || undefined,
-              emolaName: formData.get('emolaName') || undefined,
-              emolaPhone: formData.get('emolaPhone') || undefined,
-            }
-            try {
-              const res = await fetch('/api/stores', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
-              })
-              if (res.ok) {
-                setMessage('Configurações atualizadas!')
-                fetchStore()
-                setTimeout(() => setMessage(''), 3000)
-              } else {
-                const errorData = await res.json()
-                setError(errorData.error || 'Erro ao atualizar configurações')
+            <form onSubmit={async (e) => {
+              e.preventDefault()
+              const formData = new FormData(e.currentTarget)
+              const data = {
+                id: store.id,
+                name: store.name,
+                slug: store.slug,
+                description: store.description,
+                facebookUrl: formData.get('facebookUrl') || undefined,
+                instagramUrl: formData.get('instagramUrl') || undefined,
+                whatsappUrl: formData.get('whatsappUrl') || undefined,
+                appUrl: formData.get('appUrl') || undefined,
+                mpesaName: formData.get('mpesaName') || undefined,
+                mpesaPhone: formData.get('mpesaPhone') || undefined,
+                emolaName: formData.get('emolaName') || undefined,
+                emolaPhone: formData.get('emolaPhone') || undefined,
+              }
+              try {
+                const res = await fetch('/api/stores', {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(data),
+                })
+                if (res.ok) {
+                  setMessage('Configurações atualizadas!')
+                  fetchStore()
+                  setTimeout(() => setMessage(''), 3000)
+                } else {
+                  const errorData = await res.json()
+                  setError(errorData.error || 'Erro ao atualizar configurações')
+                  setTimeout(() => setError(''), 5000)
+                }
+              } catch (err) {
+                console.error('Error updating store:', err)
+                setError('Erro ao atualizar configurações')
                 setTimeout(() => setError(''), 5000)
               }
-            } catch (err) {
-              console.error('Error updating store:', err)
-              setError('Erro ao atualizar configurações')
-              setTimeout(() => setError(''), 5000)
-            }
-          }} className="space-y-3">
+            }} className="space-y-3">
               <div>
                 <label className="block text-xs font-semibold text-text-light mb-1">Facebook</label>
                 <input
@@ -330,7 +331,7 @@ export default function DashboardContent({ session }: { session: any }) {
               </div>
               <div className="border-t-2 border-dark-border pt-3 mt-3">
                 <h3 className="text-sm font-bold text-text-light mb-2">Métodos de Pagamento</h3>
-                
+
                 <div className="mb-3">
                   <label className="block text-xs font-semibold text-text-light mb-1">M-Pesa - Nome da Empresa</label>
                   <input
@@ -351,7 +352,7 @@ export default function DashboardContent({ session }: { session: any }) {
                     placeholder="+258 XXX XXX XXX"
                   />
                 </div>
-                
+
                 <div className="mb-3">
                   <label className="block text-xs font-semibold text-text-light mb-1">Emola - Nome da Empresa</label>
                   <input
@@ -390,81 +391,73 @@ export default function DashboardContent({ session }: { session: any }) {
             <nav className="flex gap-2 min-w-max sm:min-w-0">
               <button
                 onClick={() => setActiveTab('categories')}
-                className={`px-4 sm:px-6 py-2 rounded-lg transition font-semibold text-xs sm:text-sm whitespace-nowrap ${
-                  activeTab === 'categories'
+                className={`px-4 sm:px-6 py-2 rounded-lg transition font-semibold text-xs sm:text-sm whitespace-nowrap ${activeTab === 'categories'
                     ? 'bg-gold-primary text-dark-bg'
                     : 'bg-dark-surface text-text-light hover:bg-gold-primary hover:text-dark-bg border-2 border-dark-border'
-                }`}
+                  }`}
               >
                 Categorias
               </button>
               <button
                 onClick={() => setActiveTab('products')}
-                className={`px-4 sm:px-6 py-2 rounded-lg transition font-semibold text-xs sm:text-sm whitespace-nowrap ${
-                  activeTab === 'products'
+                className={`px-4 sm:px-6 py-2 rounded-lg transition font-semibold text-xs sm:text-sm whitespace-nowrap ${activeTab === 'products'
                     ? 'bg-gold-primary text-dark-bg'
                     : 'bg-dark-surface text-text-light hover:bg-gold-primary hover:text-dark-bg border-2 border-dark-border'
-                }`}
+                  }`}
               >
                 Produtos
               </button>
               <button
                 onClick={() => setActiveTab('reviews')}
-                className={`px-4 sm:px-6 py-2 rounded-lg transition font-semibold text-xs sm:text-sm whitespace-nowrap ${
-                  activeTab === 'reviews'
+                className={`px-4 sm:px-6 py-2 rounded-lg transition font-semibold text-xs sm:text-sm whitespace-nowrap ${activeTab === 'reviews'
                     ? 'bg-gold-primary text-dark-bg'
                     : 'bg-dark-surface text-text-light hover:bg-gold-primary hover:text-dark-bg border-2 border-dark-border'
-                }`}
+                  }`}
               >
                 Avaliações
               </button>
               <button
                 onClick={() => setActiveTab('orders')}
-                className={`px-4 sm:px-6 py-2 rounded-lg transition font-semibold text-xs sm:text-sm whitespace-nowrap ${
-                  activeTab === 'orders'
+                className={`px-4 sm:px-6 py-2 rounded-lg transition font-semibold text-xs sm:text-sm whitespace-nowrap ${activeTab === 'orders'
                     ? 'bg-gold-primary text-dark-bg'
                     : 'bg-dark-surface text-text-light hover:bg-gold-primary hover:text-dark-bg border-2 border-dark-border'
-                }`}
+                  }`}
               >
                 Pedidos
               </button>
               <button
                 onClick={() => setActiveTab('finance')}
-                className={`px-4 sm:px-6 py-2 rounded-lg transition font-semibold text-xs sm:text-sm whitespace-nowrap ${
-                  activeTab === 'finance'
+                className={`px-4 sm:px-6 py-2 rounded-lg transition font-semibold text-xs sm:text-sm whitespace-nowrap ${activeTab === 'finance'
                     ? 'bg-gold text-black-pure'
                     : 'bg-dark-gray text-white hover:bg-gold hover:text-black-pure border-2 border-border'
-                }`}
+                  }`}
               >
                 Financeiro
               </button>
               <button
                 onClick={() => setActiveTab('tables')}
-                className={`px-4 sm:px-6 py-2 rounded-lg transition font-semibold text-xs sm:text-sm whitespace-nowrap ${
-                  activeTab === 'tables'
+                className={`px-4 sm:px-6 py-2 rounded-lg transition font-semibold text-xs sm:text-sm whitespace-nowrap ${activeTab === 'tables'
                     ? 'bg-gold-primary text-dark-bg'
                     : 'bg-dark-surface text-text-light hover:bg-gold-primary hover:text-dark-bg border-2 border-dark-border'
-                }`}
+                  }`}
               >
                 Mesas
               </button>
               <button
                 onClick={() => setActiveTab('attendant-calls')}
-                className={`px-4 sm:px-6 py-2 rounded-lg transition font-semibold text-xs sm:text-sm whitespace-nowrap relative ${
-                  activeTab === 'attendant-calls'
+                className={`px-4 sm:px-6 py-2 rounded-lg transition font-semibold text-xs sm:text-sm whitespace-nowrap relative ${activeTab === 'attendant-calls'
                     ? 'bg-gold text-black-pure'
                     : 'bg-dark-gray text-white hover:bg-gold hover:text-black-pure border-2 border-border'
-                }`}
+                  }`}
               >
                 🔔 Atendente
               </button>
               <button
                 onClick={() => setActiveTab('customers')}
-                className={`px-4 sm:px-6 py-2 rounded-lg transition font-semibold text-xs sm:text-sm whitespace-nowrap ${
-                  activeTab === 'customers'
+                className={`px-4 sm:px-6 py-2 rounded-lg transition font-semibold text-xs sm:text-sm whitespace-nowrap ${activeTab === 'customers'
                     ? 'bg-blue-600 text-white'
                     : 'bg-dark-gray text-white hover:bg-gold hover:text-black-pure border-2 border-border'
-                }`}
+                  }`}
               >
                 Clientes
               </button>
@@ -546,6 +539,7 @@ function CategoriesSection({ storeId, onUpdate }: { storeId: number; onUpdate: (
       name: formData.get('name') as string,
       description: formData.get('description') as string,
       orderPosition: parseInt(formData.get('order_position') as string) || 0,
+      parentId: formData.get('parentId') ? parseInt(formData.get('parentId') as string) : null,
     }
 
     try {
@@ -656,6 +650,22 @@ function CategoriesSection({ storeId, onUpdate }: { storeId: number; onUpdate: (
                 className="w-full px-4 py-2 bg-black-main border-2 border-border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-gold"
               />
             </div>
+            <div>
+              <label className="block text-text-light font-semibold mb-2">Categoria Pai (Opcional)</label>
+              <select
+                name="parentId"
+                defaultValue={editingCategory?.parentId || ''}
+                className="w-full px-4 py-2 bg-black-main border-2 border-border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-gold"
+              >
+                <option value="">Nenhuma (Categoria Principal)</option>
+                {categories
+                  .filter(c => !c.parentId && c.id !== editingCategory?.id)
+                  .map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+              </select>
+              <p className="text-xs text-text-muted mt-1">Selecione se esta for uma subcategoria (ex: de Bebidas ou Comida).</p>
+            </div>
             <div className="flex gap-2">
               <button
                 type="submit"
@@ -685,11 +695,19 @@ function CategoriesSection({ storeId, onUpdate }: { storeId: number; onUpdate: (
             className="bg-dark-gray p-4 rounded-lg border-2 border-border flex justify-between items-center"
           >
             <div>
-              <h3 className="font-semibold text-white">{category.name}</h3>
+              <h3 className="font-semibold text-white flex items-center gap-2">
+                {category.parentId && <span className="text-gold text-xs">↳</span>}
+                {category.name}
+              </h3>
               {category.description && (
                 <p className="text-sm text-text-muted">{category.description}</p>
               )}
-              <p className="text-xs text-text-muted">Ordem: {category.orderPosition}</p>
+              <div className="flex gap-2 text-xs text-text-muted">
+                <span>Ordem: {category.orderPosition}</span>
+                {category.parentId && (
+                  <span>• Subcategoria de: {categories.find(c => c.id === category.parentId)?.name}</span>
+                )}
+              </div>
             </div>
             <div className="flex gap-2">
               <button
@@ -1080,24 +1098,23 @@ function ProductsSection({
               {/* Imagem do Produto */}
               {product.image && (
                 <div className="flex-shrink-0 w-full sm:w-auto">
-                  <img 
-                    src={product.image} 
-                    alt={product.name} 
-                    className="w-full sm:w-24 h-32 sm:h-24 object-cover rounded border border-dark-border" 
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full sm:w-24 h-32 sm:h-24 object-cover rounded border border-dark-border"
                   />
                 </div>
               )}
-              
+
               {/* Informações do Produto */}
               <div className="flex-1 min-w-0 w-full sm:w-auto">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
                   <h3 className="font-bold text-base sm:text-lg text-white break-words flex-1 min-w-0">{product.name}</h3>
                   <span
-                    className={`text-xs px-3 py-1 rounded-full font-semibold flex-shrink-0 self-start sm:self-auto ${
-                      product.isAvailable
+                    className={`text-xs px-3 py-1 rounded-full font-semibold flex-shrink-0 self-start sm:self-auto ${product.isAvailable
                         ? 'bg-gold bg-opacity-20 text-gold border border-gold'
                         : 'bg-dark-red bg-opacity-20 text-red-300 border border-dark-red'
-                    }`}
+                      }`}
                   >
                     {product.isAvailable ? 'Disponível' : 'Indisponível'}
                   </span>
@@ -1274,16 +1291,16 @@ function ReviewsSection({ storeId }: { storeId: number }) {
                       </span>
                     </div>
                   </div>
-                  
+
                   {review.product && (
                     <p className="text-xs sm:text-sm text-red-strong font-semibold mb-2 break-words">
                       Produto: {review.product.name}
                     </p>
                   )}
-                  
+
                   <p className="text-sm sm:text-base text-gray-light break-words">{review.comment}</p>
                 </div>
-                
+
                 <button
                   onClick={() => handleDelete(review.id)}
                   className="bg-red-strong text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold hover:bg-red-dark transition whitespace-nowrap flex-shrink-0 w-full sm:w-auto"
@@ -1434,7 +1451,7 @@ function FinanceSection({ storeId }: { storeId: number }) {
   const totalPendente = filtered
     .filter(o => ['pending_approval', 'approved'].includes(o.status))
     .reduce((sum, o) => sum + (o.totalAmount || 0), 0)
-  
+
   // Calcular métricas expandidas
   const ticketMedio = calculateAverageTicket(filtered)
   const pedidosPorDia = calculateOrdersPerDay(filtered)
@@ -1632,7 +1649,7 @@ function FinanceSection({ storeId }: { storeId: number }) {
       {/* Filtros Avançados */}
       <div className="bg-dark-surface p-4 border-2 border-dark-border rounded-lg space-y-4">
         <h3 className="text-lg font-bold text-text-light">Filtros</h3>
-        
+
         {/* Primeira linha de filtros */}
         <div className="flex flex-wrap gap-3">
           <div>

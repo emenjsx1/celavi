@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
     }
 
-    const { name, description, orderPosition } = await request.json()
+    const { name, description, orderPosition, parentId } = await request.json()
 
     if (!name) {
       return NextResponse.json(
@@ -75,6 +75,7 @@ export async function POST(request: NextRequest) {
             name,
             description: description || undefined,
             orderPosition: orderPosition || 0,
+            parentId: parentId ? parseInt(parentId) : undefined,
           })
           if (category) {
             return NextResponse.json(category, { status: 201 })
@@ -98,6 +99,7 @@ export async function POST(request: NextRequest) {
       name,
       description: description || undefined,
       orderPosition: orderPosition || 0,
+      parentId: parentId ? parseInt(parentId) : undefined,
     })
 
     return NextResponse.json(category, { status: 201 })
@@ -118,7 +120,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
     }
 
-    const { id, name, description, orderPosition } = await request.json()
+    const { id, name, description, orderPosition, parentId } = await request.json()
 
     if (!id) {
       return NextResponse.json(
@@ -145,6 +147,7 @@ export async function PUT(request: NextRequest) {
             name,
             description: description || undefined,
             orderPosition: orderPosition || 0,
+            parentId: parentId !== undefined ? (parentId ? parseInt(parentId) : null) : undefined,
           })
           if (updatedCategory) {
             return NextResponse.json(updatedCategory)
@@ -176,6 +179,7 @@ export async function PUT(request: NextRequest) {
       name,
       description: description || undefined,
       orderPosition: orderPosition || 0,
+      parentId: parentId !== undefined ? (parentId ? parseInt(parentId) : null) : undefined,
     })
 
     if (!updatedCategory) {
