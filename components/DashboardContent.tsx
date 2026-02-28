@@ -392,8 +392,8 @@ export default function DashboardContent({ session }: { session: any }) {
               <button
                 onClick={() => setActiveTab('categories')}
                 className={`px-4 sm:px-6 py-2 rounded-lg transition font-semibold text-xs sm:text-sm whitespace-nowrap ${activeTab === 'categories'
-                    ? 'bg-gold-primary text-dark-bg'
-                    : 'bg-dark-surface text-text-light hover:bg-gold-primary hover:text-dark-bg border-2 border-dark-border'
+                  ? 'bg-gold-primary text-dark-bg'
+                  : 'bg-dark-surface text-text-light hover:bg-gold-primary hover:text-dark-bg border-2 border-dark-border'
                   }`}
               >
                 Categorias
@@ -401,8 +401,8 @@ export default function DashboardContent({ session }: { session: any }) {
               <button
                 onClick={() => setActiveTab('products')}
                 className={`px-4 sm:px-6 py-2 rounded-lg transition font-semibold text-xs sm:text-sm whitespace-nowrap ${activeTab === 'products'
-                    ? 'bg-gold-primary text-dark-bg'
-                    : 'bg-dark-surface text-text-light hover:bg-gold-primary hover:text-dark-bg border-2 border-dark-border'
+                  ? 'bg-gold-primary text-dark-bg'
+                  : 'bg-dark-surface text-text-light hover:bg-gold-primary hover:text-dark-bg border-2 border-dark-border'
                   }`}
               >
                 Produtos
@@ -410,8 +410,8 @@ export default function DashboardContent({ session }: { session: any }) {
               <button
                 onClick={() => setActiveTab('reviews')}
                 className={`px-4 sm:px-6 py-2 rounded-lg transition font-semibold text-xs sm:text-sm whitespace-nowrap ${activeTab === 'reviews'
-                    ? 'bg-gold-primary text-dark-bg'
-                    : 'bg-dark-surface text-text-light hover:bg-gold-primary hover:text-dark-bg border-2 border-dark-border'
+                  ? 'bg-gold-primary text-dark-bg'
+                  : 'bg-dark-surface text-text-light hover:bg-gold-primary hover:text-dark-bg border-2 border-dark-border'
                   }`}
               >
                 Avaliações
@@ -419,8 +419,8 @@ export default function DashboardContent({ session }: { session: any }) {
               <button
                 onClick={() => setActiveTab('orders')}
                 className={`px-4 sm:px-6 py-2 rounded-lg transition font-semibold text-xs sm:text-sm whitespace-nowrap ${activeTab === 'orders'
-                    ? 'bg-gold-primary text-dark-bg'
-                    : 'bg-dark-surface text-text-light hover:bg-gold-primary hover:text-dark-bg border-2 border-dark-border'
+                  ? 'bg-gold-primary text-dark-bg'
+                  : 'bg-dark-surface text-text-light hover:bg-gold-primary hover:text-dark-bg border-2 border-dark-border'
                   }`}
               >
                 Pedidos
@@ -428,8 +428,8 @@ export default function DashboardContent({ session }: { session: any }) {
               <button
                 onClick={() => setActiveTab('finance')}
                 className={`px-4 sm:px-6 py-2 rounded-lg transition font-semibold text-xs sm:text-sm whitespace-nowrap ${activeTab === 'finance'
-                    ? 'bg-gold text-black-pure'
-                    : 'bg-dark-gray text-white hover:bg-gold hover:text-black-pure border-2 border-border'
+                  ? 'bg-gold text-black-pure'
+                  : 'bg-dark-gray text-white hover:bg-gold hover:text-black-pure border-2 border-border'
                   }`}
               >
                 Financeiro
@@ -437,8 +437,8 @@ export default function DashboardContent({ session }: { session: any }) {
               <button
                 onClick={() => setActiveTab('tables')}
                 className={`px-4 sm:px-6 py-2 rounded-lg transition font-semibold text-xs sm:text-sm whitespace-nowrap ${activeTab === 'tables'
-                    ? 'bg-gold-primary text-dark-bg'
-                    : 'bg-dark-surface text-text-light hover:bg-gold-primary hover:text-dark-bg border-2 border-dark-border'
+                  ? 'bg-gold-primary text-dark-bg'
+                  : 'bg-dark-surface text-text-light hover:bg-gold-primary hover:text-dark-bg border-2 border-dark-border'
                   }`}
               >
                 Mesas
@@ -446,8 +446,8 @@ export default function DashboardContent({ session }: { session: any }) {
               <button
                 onClick={() => setActiveTab('attendant-calls')}
                 className={`px-4 sm:px-6 py-2 rounded-lg transition font-semibold text-xs sm:text-sm whitespace-nowrap relative ${activeTab === 'attendant-calls'
-                    ? 'bg-gold text-black-pure'
-                    : 'bg-dark-gray text-white hover:bg-gold hover:text-black-pure border-2 border-border'
+                  ? 'bg-gold text-black-pure'
+                  : 'bg-dark-gray text-white hover:bg-gold hover:text-black-pure border-2 border-border'
                   }`}
               >
                 🔔 Atendente
@@ -455,8 +455,8 @@ export default function DashboardContent({ session }: { session: any }) {
               <button
                 onClick={() => setActiveTab('customers')}
                 className={`px-4 sm:px-6 py-2 rounded-lg transition font-semibold text-xs sm:text-sm whitespace-nowrap ${activeTab === 'customers'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-dark-gray text-white hover:bg-gold hover:text-black-pure border-2 border-border'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-dark-gray text-white hover:bg-gold hover:text-black-pure border-2 border-border'
                   }`}
               >
                 Clientes
@@ -521,6 +521,7 @@ function CategoriesSection({ storeId, onUpdate }: { storeId: number; onUpdate: (
       const res = await fetch('/api/categories')
       if (res.ok) {
         const data = await res.json()
+        data.sort((a: any, b: any) => a.orderPosition - b.orderPosition)
         setCategories(data)
       }
     } catch (err) {
@@ -1112,8 +1113,8 @@ function ProductsSection({
                   <h3 className="font-bold text-base sm:text-lg text-white break-words flex-1 min-w-0">{product.name}</h3>
                   <span
                     className={`text-xs px-3 py-1 rounded-full font-semibold flex-shrink-0 self-start sm:self-auto ${product.isAvailable
-                        ? 'bg-gold bg-opacity-20 text-gold border border-gold'
-                        : 'bg-dark-red bg-opacity-20 text-red-300 border border-dark-red'
+                      ? 'bg-gold bg-opacity-20 text-gold border border-gold'
+                      : 'bg-dark-red bg-opacity-20 text-red-300 border border-dark-red'
                       }`}
                   >
                     {product.isAvailable ? 'Disponível' : 'Indisponível'}
