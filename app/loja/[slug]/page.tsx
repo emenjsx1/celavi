@@ -477,9 +477,9 @@ export default function LojaPage() {
         </div>
       </header>
 
-      <div className="bg-black-pure/90 backdrop-blur-md sticky top-0 z-40 border-b border-white/5 shadow-2xl">
-        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-3">
-          {navPath.length > 0 && (
+      {navPath.length > 0 && (
+        <div className="bg-black-pure/90 backdrop-blur-md sticky top-0 z-40 border-b border-white/5 shadow-2xl transition-all">
+          <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-3">
             <button
               onClick={handleGoBack}
               className="flex items-center gap-1.5 text-gold hover:text-gold-bright transition-colors font-semibold text-sm shrink-0"
@@ -489,28 +489,31 @@ export default function LojaPage() {
               </svg>
               Voltar
             </button>
-          )}
-          <div className="flex items-center gap-1.5 text-sm text-gray-light overflow-x-auto scrollbar-hide whitespace-nowrap">
-            <span
-              className={`cursor-pointer hover:underline ${navPath.length === 0 ? 'text-white font-bold' : 'text-gold'}`}
-              onClick={() => handleJumpToPath(-1)}
-            >
-              Cardápio
-            </span>
-            {navPath.map((cat, idx) => (
-              <div key={cat.id} className="flex items-center gap-1.5">
-                <span className="opacity-40 text-xs">▶</span>
-                <span
-                  className={`cursor-pointer hover:underline ${idx === navPath.length - 1 ? 'text-white font-bold' : 'text-gold'}`}
-                  onClick={() => handleJumpToPath(idx)}
-                >
-                  {cat.name}
-                </span>
-              </div>
-            ))}
+            <div className="h-4 w-[1px] bg-white/10 mx-1" />
+            <div className="flex items-center gap-1.5 text-sm text-gray-light overflow-x-auto scrollbar-hide whitespace-nowrap">
+              <span
+                className="cursor-pointer text-gold hover:text-gold-bright"
+                onClick={() => handleJumpToPath(-1)}
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+                </svg>
+              </span>
+              {navPath.map((cat, idx) => (
+                <div key={cat.id} className="flex items-center gap-1.5">
+                  <span className="opacity-40 text-xs">▶</span>
+                  <span
+                    className={`cursor-pointer hover:underline ${idx === navPath.length - 1 ? 'text-white font-bold' : 'text-gold'}`}
+                    onClick={() => handleJumpToPath(idx)}
+                  >
+                    {cat.name}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       <main className="max-w-4xl mx-auto px-4 py-8">
 
