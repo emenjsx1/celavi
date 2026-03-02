@@ -433,10 +433,10 @@ export default function LojaPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black-main">
-      <header className="bg-black-main border-b-2 border-border py-4">
+    <div className="min-h-screen bg-black-pure text-white">
+      <header className="bg-black-pure pt-4 pb-2">
         <div className="max-w-4xl mx-auto px-4">
-          <div className="flex justify-between items-center mb-3 gap-2">
+          <div className="flex justify-between items-center mb-4 gap-2">
             <div className="flex items-center gap-2">
               <CallAttendantButton
                 storeId={store.id}
@@ -469,18 +469,15 @@ export default function LojaPage() {
             <img
               src="/logo-cela-vi-beira.png"
               alt={store.name}
-              className="h-14 w-auto mx-auto mb-2 object-contain"
+              className="h-12 w-auto mx-auto mb-1 object-contain"
               onError={(e) => { e.currentTarget.style.display = 'none' }}
             />
-            <p className="text-lg font-semibold text-gold uppercase tracking-widest">Nosso Magnífico Cardápio</p>
+            <p className="text-md font-bold text-gold uppercase tracking-widest">Magnífico Cardápio</p>
           </div>
         </div>
       </header>
 
-      <DripSeparator topColor="bg-black-main" bottomColor="bg-dark-gray" height="h-10" />
-
-      {/* Barra de Navegação Hierárquica */}
-      <div className="bg-dark-gray sticky top-0 z-40 border-b border-border">
+      <div className="bg-black-pure/90 backdrop-blur-md sticky top-0 z-40 border-b border-white/5 shadow-2xl">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-3">
           {navPath.length > 0 && (
             <button
