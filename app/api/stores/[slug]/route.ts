@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getStoreBySlug, getCategoriesByStoreId, getProductsByStoreId } from '@/lib/db-supabase'
 import { mockData, initializeMockData } from '@/lib/mock-data'
 
+export const revalidate = 0
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
@@ -9,7 +11,7 @@ export async function GET(
   try {
     // Aguardar params (Next.js 15+)
     const { slug } = await params
-    
+
     // Tentar buscar do Supabase primeiro
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     if (supabaseUrl) {
@@ -18,7 +20,7 @@ export async function GET(
         if (store) {
           const categories = await getCategoriesByStoreId(store.id)
           const products = await getProductsByStoreId(store.id)
-          
+
           return NextResponse.json({
             ...store,
             categories,
